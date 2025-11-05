@@ -2,20 +2,20 @@ name: GTFS Data Collector
 
 on:
   schedule:
-    # UTC times — adjust these to your local timezone if needed
+    # Runs 5 times per day
     - cron: "0 4 * * *"   # 6 AM Cairo
-    - cron: "0 8 * * *"   # 10 AM
-    - cron: "0 12 * * *"  # 2 PM
-    - cron: "0 16 * * *"  # 6 PM
-    - cron: "0 20 * * *"  # 10 PM
-  workflow_dispatch:  # allows you to manually trigger it
+    - cron: "0 8 * * *"   # 10 AM Cairo
+    - cron: "0 12 * * *"  # 2 PM Cairo
+    - cron: "0 16 * * *"  # 6 PM Cairo
+    - cron: "0 20 * * *"  # 10 PM Cairo
+  workflow_dispatch:  # allow manual run
 
 jobs:
   run-script:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repo
+      - name: Checkout repository
         uses: actions/checkout@v3
 
       - name: Set up Python
@@ -24,9 +24,15 @@ jobs:
           python-version: "3.10"
 
       - name: Install dependencies
-        run: |
-          pip install -r requirements.txt
+        run: pip install -r requirements.txt
 
       - name: Run GTFS collector
+        run: python fetch_realtime_gtfs.py
+
+      - name: Commit and push CSV results
         run: |
-          python fetch_realtime_gtfs.py
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/*.csv || echo "No new CSVs"
+          git commit -m "Add GTFS data from $(date '+%Y-%m-%d %H:%M:%S')" || echo "No changes to commit"
+          git push
