@@ -1,0 +1,32 @@
+name: GTFS Data Collector
+
+on:
+  schedule:
+    # UTC times — adjust these to your local timezone if needed
+    - cron: "0 4 * * *"   # 6 AM Cairo
+    - cron: "0 8 * * *"   # 10 AM
+    - cron: "0 12 * * *"  # 2 PM
+    - cron: "0 16 * * *"  # 6 PM
+    - cron: "0 20 * * *"  # 10 PM
+  workflow_dispatch:  # allows you to manually trigger it
+
+jobs:
+  run-script:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+
+      - name: Run GTFS collector
+        run: |
+          python fetch_realtime_gtfs.py
