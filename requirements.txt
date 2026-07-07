@@ -1,3 +1,4 @@
 requests
 pandas
 gtfs-realtime-bindings
+boto3
